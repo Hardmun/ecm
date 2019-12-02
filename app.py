@@ -7,7 +7,8 @@ from flask import Flask
 from flask import render_template
 from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy_utils import database_exists
+import os
 
 def projectdir(ctlg, usetempdir=False):
     """if executable file -  have to change the default path"""
@@ -31,9 +32,34 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    image_file = db.Column(db.String(120), nullable=False, default="default.gpg")
+    password = db.Column(db.String(60), nullable=False)
+    posts = db.relationship("Post", backref="author", lazy=True)
 
-n = User()
-n.id = 1
+    def __repr__(self):
+        return f"username'{self.username}', email'{self.email}'"
+
+class Post(db.Model):
+    from datetime import datetime
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    def __repr__(self):
+        return f"title'{self.title}', date_posted'{self.date_posted}', content'{self.content}'"
+
+if not database_exists("sqlite:///site.db"):
+    db.create_all()
+
+# t = User(username="Corey", email="sdf@mail.ru", password="234dsfsdaf23")
+# print(t)
+# db.session().add(t)
+# db.session().commit()
+# print(User.query.all())
 
 @app.route("/")
 def home_page():
@@ -60,12 +86,12 @@ def login():
     log_form = LoginForm()
     if log_form.validate_on_submit():
         if "admin" in log_form.email.data:
-            flash("You have been logged in!","success")
+            flash("You have been logged in!", "success")
             return redirect(url_for('home_page'))
         else:
             flash("Login unseccessful. Please check username and password!", "danger m-auto w-25")
     return render_template("login.html", title="Log in", form=log_form)
 
-if __name__ == "__main__":
-    Debug(app)
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     Debug(app)
+#     app.run(debug=True)
