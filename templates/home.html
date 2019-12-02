@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block left_side %}
+<div class="flex-grow-1 left_menu">
+    <div class="content-section p-2">
+        <h3>Our Sidebar</h3>
+        <p class="text-muted">You can put any information here you'd like.</p>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-light">
+                <a class="article-title" href="/">Latest Posts</a>
+            </li>
+            <li class="list-group-item list-group-item-light">Announcements</li>
+            <li class="list-group-item list-group-item-light">Calendars</li>
+            <li class="list-group-item list-group-item-light">etc</li>
+        </ul>
+    </div>
+</div>
+{% endblock left_side %}
+{% block blog -%}
+    <article class="media content-section mb-1">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="#">Edward Snowden</a>
+                <small class="text-muted">2019-01-15</small>
+            </div>
+            <h4><a class="article-title" href="#">The story of Edward Snowden The story of Edward Snowden The
+                story of Edward Snowden The story of Edward Snowden</a></h4>
+            <p class="article-content">The story of Edward Snowden1</p>
+        </div>
+    </article>
+    <article class="media content-section mb-1">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="#">Susan Collins</a>
+                <small class="text-muted">2019-01-15</small>
+            </div>
+            <h4><a class="article-title" href="#">The story of Susan Collins</a></h4>
+            <p class="article-content">Read more about it</p>
+        </div>
+    </article>
+{% endblock blog %}
