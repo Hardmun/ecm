@@ -8,7 +8,6 @@ from flask import render_template
 from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import database_exists
-import os
 
 def projectdir(ctlg, usetempdir=False):
     """if executable file -  have to change the default path"""
