@@ -91,6 +91,6 @@ def login():
             flash("Login unseccessful. Please check username and password!", "danger m-auto w-25")
     return render_template("login.html", title="Log in", form=log_form)
 
-# if __name__ == "__main__":
-#     Debug(app)
-#     app.run(debug=True)
+if __name__ == "__main__":
+    Debug(app)
+    app.run(debug=True)
