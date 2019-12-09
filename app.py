@@ -8,21 +8,11 @@ from flask import render_template
 from flask import url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import database_exists
-
-def projectdir(ctlg, usetempdir=False):
-    """if executable file -  have to change the default path"""
-    import os
-    import sys
-    if getattr(sys, 'frozen', False) and usetempdir:
-        exe_path = os.path.dirname(sys.executable)
-        dirPath = os.path.join(getattr(sys, "_MEIPASS", exe_path), ctlg)
-    else:
-        dirPath = ctlg
-    return dirPath
+import common
 
 use_temp_dir = True
-templates_dir = projectdir("templates", use_temp_dir)
-static_dir = projectdir("static", use_temp_dir)
+templates_dir = common.projectdir("templates", use_temp_dir)
+static_dir = common.projectdir("static", use_temp_dir)
 
 app = Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
 app.config["SECRET_KEY"] = "681019bb3369b102e337f59b50dd5a6ca527947ac87152e362e9b0e45405bb11"
