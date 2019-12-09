@@ -93,16 +93,11 @@ def get_contract_report():
 #     print(col)
 
 # df_to_excel(result,file="files//result.xlsx", template="files//contract_sketch.xlsx")
-with ProcessPoolExecutor(1) as executor:
-    if __name__ == "__main__":
-        t = executor.submit(get_contract_report)
-        # aaaa = as_completed(t)
-        print(t.result())
+def get_contract_report_proc():
+    with ProcessPoolExecutor(1) as executor:
+        prc = executor.submit(get_contract_report).result()
+        return prc
 
-print("already printed")
-# a = get_contract_report()
-# print(a)
-
-# app = Flask(__name__)
-# if __name__ == "__main__":
-#     app.run()
+app = Flask(__name__)
+if __name__ == "__main__":
+    app.run()
