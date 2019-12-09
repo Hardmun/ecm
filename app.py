@@ -48,5 +48,5 @@ def login():
     return render_template("login.html", title="Log in", form=log_form)
 
 # if __name__ == "__main__":
-#     Debug(app)
-#     app.run(debug=True)
+# #     Debug(app)
+# #     app.run(debug=True)

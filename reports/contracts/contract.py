@@ -1,6 +1,5 @@
-from excel_app import getDataFromExcel
-from pandas import concat as pd_concat
-from pandas import merge as pd_merge
+from flask import Flask
+import concurrent.futures
 
 def get_xls_struct():
     dates_pivot = {
@@ -54,6 +53,11 @@ def get_xls_struct():
     return [dates_pivot, revenue, expense, list_rev]
 
 def get_contract_report():
+    from excel_app import getDataFromExcel
+    from pandas import concat as pd_concat
+    from pandas import merge as pd_merge
+    from excel_app import df_to_excel
+
     xls_struct = get_xls_struct()
     df_period = getDataFromExcel("files//periods.xlsx", list(xls_struct[0]))
     df_period = df_period.rename(columns=xls_struct[0])
@@ -76,6 +80,8 @@ def get_contract_report():
     result = result.reset_index()
     return result
 
+    # df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
+
 # datestr = "23.08.2015 12:00:01"
 # pat = re.compile("[0-9]")
 # ismatch = re.match(re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]"), datestr)
@@ -88,5 +94,9 @@ def get_contract_report():
 # df_to_excel(result,file="files//result.xlsx", template="files//contract_sketch.xlsx")
 
 
-a = get_contract_report()
-print(a)
+# a = get_contract_report()
+# print(a)
+
+# app = Flask(__name__)
+# if __name__ == "__main__":
+#     app.run()
