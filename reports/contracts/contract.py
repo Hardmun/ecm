@@ -87,6 +87,8 @@ def get_contract_report():
 # ismatch = re.match(re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]"), datestr)
 
 
+
+
 # columns = result.columns
 # for col in columns:
 #     print(col)
