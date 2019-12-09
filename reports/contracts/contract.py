@@ -1,5 +1,6 @@
 from flask import Flask
-import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import as_completed
 
 def get_xls_struct():
     dates_pivot = {
@@ -94,8 +95,13 @@ def get_contract_report():
 #     print(col)
 
 # df_to_excel(result,file="files//result.xlsx", template="files//contract_sketch.xlsx")
+with ProcessPoolExecutor(1) as executor:
+    if __name__ == "__main__":
+        t = executor.submit(get_contract_report)
+        # aaaa = as_completed(t)
+        print(t.result())
 
-
+print("already printed")
 # a = get_contract_report()
 # print(a)
 
