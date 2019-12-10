@@ -1,4 +1,6 @@
 from pandas import ExcelFile as pd_ExcelFile
+from openpyxl import load_workbook
+from copy import copy
 
 def getDataFromExcel(filename, cols=None):
     with pd_ExcelFile(filename) as file_xls:
@@ -15,13 +17,8 @@ def getDataFromExcel(filename, cols=None):
     return sheet_df
 
 def df_to_excel(table, file="", template="", columns=None):
-    from openpyxl import load_workbook
-    from copy import copy
-
     lw = load_workbook(template)
     lw_sheet = lw.active
-
-
 
     # for _ in range(10):
     cell = lw_sheet["M2"]

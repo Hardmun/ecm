@@ -18,4 +18,7 @@ def get_module_file(abs_path, filename=""):
     #     os.path.abspath(abs_path))
     # return dirPath.replace("modules", "") + os.path.normpath(filename)
 
-
+# def get_contract_report_proc():
+#     with ProcessPoolExecutor(1) as executor:
+#         prc = executor.submit(get_contract_report).result()
+#         return prc
