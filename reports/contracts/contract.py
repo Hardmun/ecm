@@ -1,3 +1,5 @@
+from openpyxl.worksheet.worksheet import Worksheet
+
 from excel_app import getDataFromExcel
 from pandas import concat as pd_concat
 from pandas import merge as pd_merge
@@ -73,30 +75,30 @@ def mapping_df_xls():
         'N': ('amount_done_on_begin', ''),
         'O': ('amount_on_begin', ''),
         'P': ('pay_on_begin', '')
-        # ,
-        # ('amount_done_on_begin', ''): '',
-        # ('amount_on_begin', ''): '',
-        # ('pay_on_begin', ''): '',
-        # ('amount_done_on_end', ''): '',
-        # ('amount_on_end', ''): '',
-
     }
     return dct
 
 def df_to_excel(table, file="", template="", columns=None):
     lw = load_workbook(template)
-    lw_sheet = lw.active
+    lw_sheet: Worksheet = lw.active
     """header style"""
     header_style = copy(lw_sheet["M2"]._style)
     header_num_style = copy(lw_sheet["M3"]._style)
+    num_format = copy(lw_sheet["M3"]._style)
     header_need = True
     """resources """
     resources = {
         "revenue_plan": "Выручка\nплан.",
         "revenue_fact": "Выручка\nфакт",
-        "pay_plan": "Оплата\nфакт",
+        "pay_plan": "Оплата\nплан",
         "pay_fact": "Оплата\nфакт"
     }
+    """end"""
+    end_colm = {
+        ('amount_done_on_end', ''): 'Выполнено на конец',
+        ('amount_on_end', ''): 'Остаток не сданных работ на конец'
+    }
+
     resource_column = 17
     row_start = 4
     for df_row in table.iterrows():
@@ -105,11 +107,11 @@ def df_to_excel(table, file="", template="", columns=None):
             new_row = lw_sheet[f"{key}{row_start}"]
             df_curr_row = df_row[1]
             new_row.value = df_curr_row[value]
+            new_row.number_format = 'General'
         lw_sheet[f"A{row_start}"].comment = Comment(f"{df_row[0][0]}\n{df_row[0][1]}", "user", height=50, width=350)
 
         """pivot and the end"""
         """header"""
-
         if header_need:
             for key, value in resources.items():
                 for idx in df_row[1][key].items():
@@ -122,12 +124,41 @@ def df_to_excel(table, file="", template="", columns=None):
                     new_num_header_cell.value = resource_column
                     new_num_header_cell._style = header_num_style
                     resource_column += 1
-                    """values"""
         """rows"""
+        column_for_rows = 17
+        for key in resources:
+            for idx in df_row[1][key].items():
+                new_row_cell = lw_sheet.cell(row_start, column_for_rows)
+                new_row_cell.value = idx[1]
+                new_row_cell.number_format = 'General'
+                column_for_rows += 1
+
+        """end"""
+        """header"""
+        if header_need:
+            column_for_rows_end = resource_column
+            for key, value in end_colm.items():
+                new_header_cell = lw_sheet.cell(2, resource_column)
+                new_header_cell.value = value
+                new_header_cell._style = header_style
+                """header number"""
+                new_num_header_cell = lw_sheet.cell(3, resource_column)
+                new_num_header_cell.value = resource_column
+                new_num_header_cell._style = header_num_style
+                resource_column += 1
+        """rows"""
+        column_for_rows = column_for_rows_end
+        for key in list(end_colm.keys()):
+            new_row_cell = lw_sheet.cell(row_start, column_for_rows)
+            df_curr_row = df_row[1]
+            new_row_cell.value = df_curr_row[key]
+            new_row_cell.number_format = 'General'
 
         header_need = False
-
         row_start += 1
+    """other styles"""
+    lw_sheet.auto_filter.ref = lw_sheet.dimensions
+
     lw.save(file)
 
 def get_contract_report():
@@ -148,9 +179,9 @@ def get_contract_report():
         '')
     """building pivot table"""
     df_result = df_result.pivot_table(index=xls_struct[3], columns="date",
-                                      values=["pay_plan", "pay_fact", "revenue_plan", "revenue_fact"], fill_value=0,
+                                      values=["pay_plan", "pay_fact", "revenue_plan", "revenue_fact"], fill_value='',
                                       margins=True,
-                                      aggfunc=sum)
+                                      aggfunc=sum).replace(0, '')
     """removing the last row with totals"""
     df_result = df_result[:-1]
     """to swipe columns"""
