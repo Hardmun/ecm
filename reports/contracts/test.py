@@ -2,9 +2,8 @@ from flask import Flask
 from reports.contracts import contract
 
 if __name__ == "__main__":
-    f = contract.get_contract_report_proc()
-    print(f)
+    result = contract.get_contract_report_proc()
+    result = result.set_index(['rev_treat', 'exp_treat'])
 
-app = Flask(__name__)
-if __name__ == "__main__":
-    app.run()
+    for i in result.itertuples():
+        print(i)

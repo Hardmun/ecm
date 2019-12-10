@@ -72,7 +72,7 @@ def get_contract_report():
     result = pd_merge(result, df_period, on=["treat", "branch"], how="left")
     result = result.fillna(
         {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
-        "null")
+        '')
     result = result.pivot_table(index=xls_struct[3], columns="date",
                                 values=["pay_plan", "pay_fact", "revenue_plan", "revenue_fact"], fill_value=0,
                                 margins=True,
