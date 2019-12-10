@@ -78,6 +78,13 @@ def mapping_df_xls():
     }
     return dct
 
+def colnum_string(n):
+    string = ""
+    while n > 0:
+        n, remainder = divmod(n - 1, 26)
+        string = chr(65 + remainder) + string
+    return string
+
 def df_to_excel(table, file="", template="", columns=None):
     lw = load_workbook(template)
     lw_sheet: Worksheet = lw.active
@@ -158,6 +165,8 @@ def df_to_excel(table, file="", template="", columns=None):
         row_start += 1
     """other styles"""
     lw_sheet.auto_filter.ref = lw_sheet.dimensions
+    for col_num in range(17, resource_column):
+        lw_sheet.column_dimensions[colnum_string(col_num)].width = 14
 
     lw.save(file)
 
