@@ -1,6 +1,11 @@
 from flask import Flask
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed
+from excel_app import getDataFromExcel
+from pandas import concat as pd_concat
+from pandas import merge as pd_merge
+from pandas import MultiIndex as pd_MultiIndex
+from excel_app import df_to_excel
 
 def get_xls_struct():
     dates_pivot = {
@@ -54,11 +59,6 @@ def get_xls_struct():
     return [dates_pivot, revenue, expense, list_rev]
 
 def get_contract_report():
-    from excel_app import getDataFromExcel
-    from pandas import concat as pd_concat
-    from pandas import merge as pd_merge
-    from excel_app import df_to_excel
-
     xls_struct = get_xls_struct()
     df_period = getDataFromExcel("files//periods.xlsx", list(xls_struct[0]))
     df_period = df_period.rename(columns=xls_struct[0])
@@ -68,7 +68,7 @@ def get_contract_report():
     df_exp = df_exp.rename(columns=xls_struct[2])
 
     result = pd_concat([df_rev, df_exp], ignore_index=True, sort=False)
-    result = result.loc[result['rev_treat'] == '"Договор 00000000052 от 25.01.2012 13:03:37"']
+    # result = result.loc[result['rev_treat'] == '"Договор 00000000052 от 25.01.2012 13:03:37"']
     result = pd_merge(result, df_period, on=["treat", "branch"], how="left")
     result = result.fillna(
         {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
@@ -77,6 +77,7 @@ def get_contract_report():
                                 values=["pay_plan", "pay_fact", "revenue_plan", "revenue_fact"], fill_value=0,
                                 margins=True,
                                 aggfunc=sum)
+    result = result[:-1]
     # result = result.swaplevel(0, 1, axis=1).sort_index(axis=1)
     result = result.reset_index()
     return result
