@@ -1,11 +1,14 @@
-from openpyxl.worksheet.worksheet import Worksheet
+from unittest import result
 
+from openpyxl.worksheet.worksheet import Worksheet
 from excel_app import getDataFromExcel
 from pandas import concat as pd_concat
 from pandas import merge as pd_merge
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
+from openpyxl.styles import PatternFill
 from copy import copy
+import re
 
 def get_xls_struct():
     dates_pivot = {
@@ -62,6 +65,7 @@ def mapping_df_xls():
     dct = {
         'A': ('branch', ''),
         'B': ('treat_client', ''),
+        'C': (),
         'J': ('treat_inn', ''),
         'D': ('treat_num', ''),
         'E': ('treat_date', ''),
@@ -85,13 +89,30 @@ def colnum_string(n):
         string = chr(65 + remainder) + string
     return string
 
+def get_quarter(month):
+    return (int(month)-1)//3 + 1
+
+def user_format(frm_value):
+    pattern = re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]")
+    ismatch = re.match(pattern, frm_value)
+    if ismatch != None:
+        date_str = frm_value[0:10].split(".");
+        result = f"{get_quarter(date_str[1])} кв. {date_str[2]} г."
+    elif frm_value == "All":
+        result = "Всего"
+    else:
+        result = frm_value
+    return result
+
 def df_to_excel(table, file="", template="", columns=None):
     lw = load_workbook(template)
     lw_sheet: Worksheet = lw.active
+    """dynamic column starts"""
+    dyn_col = 17
     """header style"""
     header_style = copy(lw_sheet["M2"]._style)
     header_num_style = copy(lw_sheet["M3"]._style)
-    num_format = copy(lw_sheet["M3"]._style)
+    fill_pattern_blue = PatternFill(start_color='CCFFFF', end_color='CCFFFF', fill_type='solid')
     header_need = True
     """resources """
     resources = {
@@ -106,15 +127,21 @@ def df_to_excel(table, file="", template="", columns=None):
         ('amount_on_end', ''): 'Остаток не сданных работ на конец'
     }
 
-    resource_column = 17
+    resource_column = dyn_col
     row_start = 4
     for df_row in table.iterrows():
+        """define revenue contract"""
+        is_rev = df_row[0][1] == ""
         """static fields"""
         for key, value in columns.items():
             new_row = lw_sheet[f"{key}{row_start}"]
             df_curr_row = df_row[1]
-            new_row.value = df_curr_row[value]
+            if is_rev:
+                new_row.fill = fill_pattern_blue
             new_row.number_format = 'General'
+            if value != ():
+                new_row.value = df_curr_row[value]
+
         lw_sheet[f"A{row_start}"].comment = Comment(f"{df_row[0][0]}\n{df_row[0][1]}", "user", height=50, width=350)
 
         """pivot and the end"""
@@ -124,20 +151,23 @@ def df_to_excel(table, file="", template="", columns=None):
                 for idx in df_row[1][key].items():
                     """header"""
                     new_header_cell = lw_sheet.cell(2, resource_column)
-                    new_header_cell.value = f"{value}\n{idx[0]}"
+                    new_header_cell.value = f"{value}\n{user_format(idx[0])}"
                     new_header_cell._style = header_style
                     """header number"""
                     new_num_header_cell = lw_sheet.cell(3, resource_column)
                     new_num_header_cell.value = resource_column
                     new_num_header_cell._style = header_num_style
                     resource_column += 1
+
         """rows"""
-        column_for_rows = 17
+        column_for_rows = dyn_col
         for key in resources:
             for idx in df_row[1][key].items():
                 new_row_cell = lw_sheet.cell(row_start, column_for_rows)
                 new_row_cell.value = idx[1]
                 new_row_cell.number_format = 'General'
+                if is_rev:
+                    new_row_cell.fill = fill_pattern_blue
                 column_for_rows += 1
 
         """end"""
@@ -160,13 +190,22 @@ def df_to_excel(table, file="", template="", columns=None):
             df_curr_row = df_row[1]
             new_row_cell.value = df_curr_row[key]
             new_row_cell.number_format = 'General'
+            if is_rev:
+                new_row_cell.fill = fill_pattern_blue
+            column_for_rows += 1
 
         header_need = False
         row_start += 1
     """other styles"""
+    """column size"""
     lw_sheet.auto_filter.ref = lw_sheet.dimensions
-    for col_num in range(17, resource_column):
+    for col_num in range(dyn_col, resource_column):
         lw_sheet.column_dimensions[colnum_string(col_num)].width = 14
+    """fix A2"""
+    lw_sheet.freeze_panes = lw_sheet.cell(3,1)
+    """grouping"""
+    lw_sheet.column_dimensions.group(colnum_string(17), colnum_string(20))
+    # lw_sheet.column_dimensions.group(colnum_string(22), colnum_string(25))
 
     lw.save(file)
 
@@ -181,7 +220,7 @@ def get_contract_report():
 
     """union and merge table"""
     df_result = pd_concat([df_rev, df_exp], ignore_index=True, sort=False)
-    # df_result = df_result.loc[result['rev_treat'] == '"Договор 00000000052 от 25.01.2012 13:03:37"']
+    # df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000003129 от 29.05.2015 12:00:00"']
     df_result = pd_merge(df_result, df_period, on=["treat", "branch"], how="left")
     df_result = df_result.fillna(
         {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
@@ -199,11 +238,17 @@ def get_contract_report():
     df_result = df_result.reset_index()
     df_result = df_result.set_index(['rev_treat', 'exp_treat']).sort_index()
 
+    """forman values(need to rebuild later"""
+    df_result['treat_date'] = df_result['treat_date'].apply(lambda x: "{:.10}".format(x))
+    df_result['treat_end_date'] = df_result['treat_end_date'].apply(lambda x: "{:.10}".format(x))
+    df_result['exp_date'] = df_result['exp_date'].apply(lambda x: "{:.10}".format(x))
+
+        # "{:.10}".format(df_result['treat_date'])
     df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
 
     return df_result
 
-result = get_contract_report()
+rslt = get_contract_report()
 
 # df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
 
