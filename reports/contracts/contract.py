@@ -90,19 +90,19 @@ def colnum_string(n):
     return string
 
 def get_quarter(month):
-    return (int(month)-1)//3 + 1
+    return (int(month) - 1) // 3 + 1
 
 def user_format(frm_value):
     pattern = re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]")
     ismatch = re.match(pattern, frm_value)
     if ismatch != None:
         date_str = frm_value[0:10].split(".");
-        result = f"{get_quarter(date_str[1])} кв. {date_str[2]} г."
+        result_frm = f"{get_quarter(date_str[1])} кв. {date_str[2]} г."
     elif frm_value == "All":
-        result = "Всего"
+        result_frm = "Всего"
     else:
-        result = frm_value
-    return result
+        result_frm = frm_value
+    return result_frm
 
 def df_to_excel(table, file="", template="", columns=None):
     lw = load_workbook(template)
@@ -128,6 +128,8 @@ def df_to_excel(table, file="", template="", columns=None):
     }
 
     resource_column = dyn_col
+    grouping_clm = dyn_col
+    grouping_list = []
     row_start = 4
     for df_row in table.iterrows():
         """define revenue contract"""
@@ -158,7 +160,14 @@ def df_to_excel(table, file="", template="", columns=None):
                     new_num_header_cell.value = resource_column
                     new_num_header_cell._style = header_num_style
                     resource_column += 1
-
+                    # grouping_clm += 1
+                """grouping totals"""
+                num_added_clm = (resource_column - grouping_clm)
+                if num_added_clm > 1:
+                    # lw_sheet.column_dimensions.group(colnum_string(grouping_clm),
+                    #                                  colnum_string(grouping_clm + num_added_clm - 2))
+                    grouping_list.append((colnum_string(grouping_clm), colnum_string(grouping_clm + num_added_clm - 2)))
+                    grouping_clm = grouping_clm + num_added_clm
         """rows"""
         column_for_rows = dyn_col
         for key in resources:
@@ -202,10 +211,10 @@ def df_to_excel(table, file="", template="", columns=None):
     for col_num in range(dyn_col, resource_column):
         lw_sheet.column_dimensions[colnum_string(col_num)].width = 14
     """fix A2"""
-    lw_sheet.freeze_panes = lw_sheet.cell(3,1)
+    lw_sheet.freeze_panes = lw_sheet.cell(3, 1)
     """grouping"""
-    lw_sheet.column_dimensions.group(colnum_string(17), colnum_string(20))
-    # lw_sheet.column_dimensions.group(colnum_string(22), colnum_string(25))
+    for grpcol in grouping_list:
+        lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
     lw.save(file)
 
@@ -238,12 +247,12 @@ def get_contract_report():
     df_result = df_result.reset_index()
     df_result = df_result.set_index(['rev_treat', 'exp_treat']).sort_index()
 
-    """forman values(need to rebuild later"""
+    """format values(need to rebuild later)"""
     df_result['treat_date'] = df_result['treat_date'].apply(lambda x: "{:.10}".format(x))
     df_result['treat_end_date'] = df_result['treat_end_date'].apply(lambda x: "{:.10}".format(x))
     df_result['exp_date'] = df_result['exp_date'].apply(lambda x: "{:.10}".format(x))
 
-        # "{:.10}".format(df_result['treat_date'])
+    """creating excel file"""
     df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
 
     return df_result
