@@ -217,11 +217,9 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    lw.save(file)
-    """testing"""
-    """changeng in develop"""
-    # binary_file = save_virtual_workbook(lw)
-    # return binary_file
+    # lw.save(file)
+    binary_file = save_virtual_workbook(lw)
+    return binary_file
 
 def get_contract_report():
     xls_struct = get_xls_struct()
