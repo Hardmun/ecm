@@ -265,7 +265,7 @@ def get_contract_report():
 
 rslt = get_contract_report()
 asdf=0
-ecm = 0
+
 # df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
 
 # datestr = "23.08.2015 12:00:01"
