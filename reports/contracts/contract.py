@@ -7,7 +7,11 @@ from pandas import merge as pd_merge
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill
-from openpyxl.writer.excel import save_virtual_workbook
+
+from openpyxl import Workbook
+from io import BytesIO
+from tempfile import NamedTemporaryFile
+
 from copy import copy
 import re
 
@@ -217,9 +221,11 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    # lw.save(file)
-    binary_file = save_virtual_workbook(lw)
-    return binary_file
+    lw.save(file)
+    with NamedTemporaryFile(mode="w") as tmp:
+        f = open("file","wb")
+        arr = lw
+    return f
 
 def get_contract_report():
     xls_struct = get_xls_struct()
