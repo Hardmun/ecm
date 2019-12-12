@@ -4,8 +4,10 @@
 # temporarily use debugging
 from flask_debug import Debug
 from flask import Flask
+from flask import request
 from flask import render_template
 from flask import url_for
+from flask import jsonify
 import common
 
 use_temp_dir = True
@@ -47,6 +49,13 @@ def login():
             flash("Login unseccessful. Please check username and password!", "danger m-auto w-25")
     return render_template("login.html", title="Log in", form=log_form)
 
-# if __name__ == "__main__":
-# #     Debug(app)
-# #     app.run(debug=True,port=8181)
+@app.route("/api/reports/contracts", methods=["get", "post"])
+def getreport():
+    from reports.contracts.contract import get_contract_report
+    binary_report = get_contract_report()
+    return jsonify({"My message": "Hello ECM!!!",
+                    "data": request.get_json(force=True)})
+
+if __name__ == "__main__":
+    Debug(app)
+    app.run(debug=True, port=8181)
