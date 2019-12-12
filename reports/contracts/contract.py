@@ -7,6 +7,7 @@ from pandas import merge as pd_merge
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill
+from openpyxl.writer.excel import save_virtual_workbook
 from copy import copy
 import re
 
@@ -216,7 +217,10 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    lw.save(file)
+    # lw.save(file)
+    """testing"""
+    binary_file = save_virtual_workbook(lw)
+    return binary_file
 
 def get_contract_report():
     xls_struct = get_xls_struct()
@@ -253,12 +257,14 @@ def get_contract_report():
     df_result['exp_date'] = df_result['exp_date'].apply(lambda x: "{:.10}".format(x))
 
     """creating excel file"""
-    df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
+    # df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
 
-    return df_result
+    # return df_result
+    """testing"""
+    return df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
 
 rslt = get_contract_report()
-
+asdf=0
 # df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
 
 # datestr = "23.08.2015 12:00:01"
