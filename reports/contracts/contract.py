@@ -221,10 +221,10 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    lw.save(file)
-    with NamedTemporaryFile(mode="w") as tmp:
-        f = open("file","wb")
-        arr = lw
+    # lw.save(file)
+    # with NamedTemporaryFile(mode="w") as tmp:
+    #     f = open("file","wb")
+    #     arr = lw
     return f
 
 def get_contract_report():
