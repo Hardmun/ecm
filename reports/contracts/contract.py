@@ -222,15 +222,18 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    # bt = BytesIO()
+    bt = BytesIO()
     # lw.save(file)
-    # lw.save(bt)
+    lw.save(bt)
+
+    with open("233.xlsx","wb") as binarysave:
+        binarysave.write(bt.getvalue())
 
 
-    with NamedTemporaryFile(mode='wb',delete=False) as tmp:
-        lw.save(tmp.name)
-        sadf=0;
-        tmp.close()
+    # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
+    #     lw.save(tmp.name)
+    #     sadf=0;
+    #     tmp.close()
 
     # with open("files//result.xlsx","rb") as tmp:
     #     asdf=0
@@ -242,7 +245,7 @@ def df_to_excel(table, file="", template="", columns=None):
     asdf=0
 
 
-    return asdf
+    return bt
 
 def get_contract_report():
     xls_struct = get_xls_struct()
