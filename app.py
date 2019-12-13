@@ -51,10 +51,11 @@ def login():
 
 @app.route("/api/reports/contracts", methods=["get", "post"])
 def getreport():
-    from reports.contracts.contract import get_contract_report
-    binary_report = get_contract_report()
-    return jsonify({"My message": "Hello ECM!!!",
-                    "data": request.get_json(force=True)})
+    # from reports.contracts.contract import get_contract_report
+    # binary_report = get_contract_report()
+    # return jsonify({"My message": "Hello ECM!!!",
+    #                 "data": request.get_json(force=True)})
+    return "Hallo ECM!!!!"
 
 if __name__ == "__main__":
     Debug(app)

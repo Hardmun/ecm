@@ -133,6 +133,7 @@ def df_to_excel(table, file="", template="", columns=None):
     grouping_list = []
     row_start = 4
     last_row = len(table.index) - row_start
+    grouping_row = row_start + 1;
     for df_row in table.iterrows():
         """define revenue contract"""
         is_rev = df_row[0][1] == ""
@@ -207,6 +208,10 @@ def df_to_excel(table, file="", template="", columns=None):
 
         header_need = False
         row_start += 1
+        """grouping row"""
+        if is_rev:
+            lw_sheet.row_dimensions.group(grouping_row, row_start - 1)
+            grouping_row = row_start
     """other styles"""
     """column size"""
     lw_sheet.auto_filter.ref = lw_sheet.dimensions
@@ -217,6 +222,8 @@ def df_to_excel(table, file="", template="", columns=None):
     """grouping"""
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
+    """grouping rows"""
+    
 
 
     # bt = BytesIO()
