@@ -132,6 +132,7 @@ def df_to_excel(table, file="", template="", columns=None):
     grouping_clm = dyn_col
     grouping_list = []
     row_start = 4
+    last_row = len(table.index) - row_start
     for df_row in table.iterrows():
         """define revenue contract"""
         is_rev = df_row[0][1] == ""
@@ -218,9 +219,9 @@ def df_to_excel(table, file="", template="", columns=None):
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
 
-    bt = BytesIO()
-    # lw.save(file)
-    lw.save(bt)
+    # bt = BytesIO()
+    lw.save(file)
+    # lw.save(bt)
 
     # with open("233.xlsx","wb") as binarysave:
     #     binarysave.write(bt.getvalue())
@@ -237,11 +238,7 @@ def df_to_excel(table, file="", template="", columns=None):
         #     for line in tmp:
         #         ex.write(line)
 
-
-    asdf=0
-
-
-    return bt
+    # return bt
 
 def get_contract_report():
     xls_struct = get_xls_struct()
