@@ -234,7 +234,7 @@ def get_contract_report():
 
     """union and merge table"""
     df_result = pd_concat([df_rev, df_exp], ignore_index=True, sort=False)
-    # df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000003129 от 29.05.2015 12:00:00"']
+    df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000000052 от 25.01.2012 13:03:37"']
     df_result = pd_merge(df_result, df_period, on=["treat", "branch"], how="left")
     df_result = df_result.fillna(
         {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
