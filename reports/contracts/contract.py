@@ -11,6 +11,7 @@ from openpyxl.styles import PatternFill
 from openpyxl import Workbook
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+import base64
 
 from copy import copy
 import re
@@ -221,11 +222,30 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
+    bt = BytesIO()
     # lw.save(file)
-    # with NamedTemporaryFile(mode="w") as tmp:
-    #     f = open("file","wb")
-    #     arr = lw
-    return f
+    lw.save(bt)
+
+    with open("233.xlsx","wb") as binarysave:
+        binarysave.write(bt.getvalue())
+
+
+    # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
+    #     lw.save(tmp.name)
+    #     sadf=0;
+    #     tmp.close()
+
+    # with open("files//result.xlsx","rb") as tmp:
+    #     asdf=0
+        # with open("1.xlsx", "wb") as ex:
+        #     for line in tmp:
+        #         ex.write(line)
+
+
+    asdf=0
+
+
+    return bt
 
 def get_contract_report():
     xls_struct = get_xls_struct()
@@ -270,6 +290,8 @@ def get_contract_report():
 
 rslt = get_contract_report()
 asdf=0
+# with open("files//result.xlsx","rb") as bn:
+#     bn.write()
 
 # df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
 
