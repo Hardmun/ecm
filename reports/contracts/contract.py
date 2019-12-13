@@ -1,20 +1,15 @@
 from unittest import result
-
-from openpyxl.worksheet.worksheet import Worksheet
 from excel_app import getDataFromExcel
 from pandas import concat as pd_concat
 from pandas import merge as pd_merge
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill
-
-from openpyxl import Workbook
 from io import BytesIO
-from tempfile import NamedTemporaryFile
-import base64
-
 from copy import copy
 import re
+
+
 
 def get_xls_struct():
     dates_pivot = {
@@ -222,12 +217,13 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
+
     bt = BytesIO()
     # lw.save(file)
     lw.save(bt)
 
-    with open("233.xlsx","wb") as binarysave:
-        binarysave.write(bt.getvalue())
+    # with open("233.xlsx","wb") as binarysave:
+    #     binarysave.write(bt.getvalue())
 
 
     # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
