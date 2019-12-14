@@ -9,8 +9,6 @@ from io import BytesIO
 from copy import copy
 import re
 
-
-
 def get_xls_struct():
     dates_pivot = {
         "Период": "date",
@@ -132,7 +130,7 @@ def df_to_excel(table, file="", template="", columns=None):
     grouping_clm = dyn_col
     grouping_list = []
     row_start = 4
-    last_row = len(table.index) - row_start
+    last_row = len(table.index) + row_start - 1
     grouping_row = row_start + 1;
     for df_row in table.iterrows():
         """define revenue contract"""
@@ -207,11 +205,13 @@ def df_to_excel(table, file="", template="", columns=None):
             column_for_rows += 1
 
         header_need = False
-        row_start += 1
         """grouping row"""
         if is_rev:
             lw_sheet.row_dimensions.group(grouping_row, row_start - 1)
-            grouping_row = row_start
+            grouping_row = row_start + 1
+        elif row_start == last_row:
+            lw_sheet.row_dimensions.group(grouping_row, row_start)
+        row_start += 1
     """other styles"""
     """column size"""
     lw_sheet.auto_filter.ref = lw_sheet.dimensions
@@ -223,8 +223,6 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
     """grouping rows"""
-    
-
 
     # bt = BytesIO()
     lw.save(file)
@@ -233,7 +231,6 @@ def df_to_excel(table, file="", template="", columns=None):
     # with open("233.xlsx","wb") as binarysave:
     #     binarysave.write(bt.getvalue())
 
-
     # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
     #     lw.save(tmp.name)
     #     sadf=0;
@@ -241,9 +238,9 @@ def df_to_excel(table, file="", template="", columns=None):
 
     # with open("files//result.xlsx","rb") as tmp:
     #     asdf=0
-        # with open("1.xlsx", "wb") as ex:
-        #     for line in tmp:
-        #         ex.write(line)
+    # with open("1.xlsx", "wb") as ex:
+    #     for line in tmp:
+    #         ex.write(line)
 
     # return bt
 
@@ -258,7 +255,7 @@ def get_contract_report():
 
     """union and merge table"""
     df_result = pd_concat([df_rev, df_exp], ignore_index=True, sort=False)
-    # df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000003129 от 29.05.2015 12:00:00"']
+    # df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000006249 от 09.08.2019 12:00:01"']
     df_result = pd_merge(df_result, df_period, on=["treat", "branch"], how="left")
     df_result = df_result.fillna(
         {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
@@ -289,7 +286,7 @@ def get_contract_report():
     return df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
 
 rslt = get_contract_report()
-asdf=0
+asdf = 0
 # with open("files//result.xlsx","rb") as bn:
 #     bn.write()
 
