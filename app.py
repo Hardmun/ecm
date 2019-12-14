@@ -53,13 +53,7 @@ def login():
 def getreport():
     from reports.contracts.contract import get_contract_report
     binary_report = get_contract_report()
-
-
-    return send_file(binary_report, attachment_filename="r.xlsx", as_attachment=True)
-    # sdaf = 0;
-    # return jsonify({"My message": "Hello ECM!!!",
-    #                 "data": request.get_json(force=True)})
-    # return "Hallo ECM!!!!"
+    return send_file(binary_report, attachment_filename="*.xlsx")
 
 if __name__ == "__main__":
     Debug(app)

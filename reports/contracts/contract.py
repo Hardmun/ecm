@@ -96,7 +96,7 @@ def user_format(frm_value):
     pattern = re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]")
     ismatch = re.match(pattern, frm_value)
     if ismatch != None:
-        date_str = frm_value[0:10].split(".");
+        date_str = frm_value[0:10].split(".")
         result_frm = f"{get_quarter(date_str[1])} кв. {date_str[2]} г."
     elif frm_value == "All":
         result_frm = "Всего"
@@ -132,7 +132,7 @@ def df_to_excel(table, file="", template="", columns=None):
     grouping_list = []
     row_start = 4
     last_row = len(table.index) + row_start - 1
-    grouping_row = row_start + 1;
+    grouping_row = row_start + 1
     for df_row in table.iterrows():
         """define revenue contract"""
         is_rev = df_row[0][1] == ""
@@ -162,12 +162,9 @@ def df_to_excel(table, file="", template="", columns=None):
                     new_num_header_cell.value = resource_column
                     new_num_header_cell._style = header_num_style
                     resource_column += 1
-                    # grouping_clm += 1
                 """grouping totals"""
                 num_added_clm = (resource_column - grouping_clm)
                 if num_added_clm > 1:
-                    # lw_sheet.column_dimensions.group(colnum_string(grouping_clm),
-                    #                                  colnum_string(grouping_clm + num_added_clm - 2))
                     grouping_list.append((colnum_string(grouping_clm), colnum_string(grouping_clm + num_added_clm - 2)))
                     grouping_clm = grouping_clm + num_added_clm
         """rows"""
@@ -226,11 +223,17 @@ def df_to_excel(table, file="", template="", columns=None):
 
     bin_report = BytesIO()
     lw.save(bin_report)
+    return BytesIO(bin_report.getvalue())
 
+    # """why is this work?"""
+    # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
+    #     workIO = BytesIO(binar.read())
+    #     return BytesIO(bin_report.getvalue())
+    # return workIO
 
     # with open("123.xlsx","wb") as savebin:
     #     savebin.write(bin_report.getvalue())
-    return bin_report
+
     # lw.save(bt)
 
     # with open("233.xlsx","wb") as binarysave:
@@ -294,21 +297,5 @@ def get_contract_report():
     # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
     #     return BytesIO(binar.read())
 
-
 # rslt = get_contract_report()
-asdf = 0
-# with open("files//result.xlsx","rb") as bn:
-#     bn.write()
-
-# df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
-
-# datestr = "23.08.2015 12:00:01"
-# pat = re.compile("[0-9]")
-# ismatch = re.match(re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]"), datestr)
-
-# df_to_excel(result,file="files//result.xlsx", template="files//contract_sketch.xlsx")
-
-#
-# app = Flask(__name__)
-# if __name__ == "__main__":
-#     app.run()
+# asdf = 0
