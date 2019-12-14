@@ -1,3 +1,5 @@
+from os import path
+
 def projectdir(ctlg, usetempdir=False):
     """if executable file -  have to change the default path"""
     import os
@@ -9,8 +11,10 @@ def projectdir(ctlg, usetempdir=False):
         dirPath = ctlg
     return dirPath
 
-def get_module_file(abs_path, filename=""):
-    pass
+def full_path(path_to_file):
+    return path.join(path.dirname(__file__), path_to_file)
+
+
     # """returns the full path to the file"""
     # import os
     # import sys

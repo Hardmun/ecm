@@ -7,12 +7,12 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import url_for
-from flask import jsonify
-import common
+from flask import send_file
+from common import projectdir
 
 use_temp_dir = True
-templates_dir = common.projectdir("templates", use_temp_dir)
-static_dir = common.projectdir("static", use_temp_dir)
+templates_dir = projectdir("templates", use_temp_dir)
+static_dir = projectdir("static", use_temp_dir)
 
 app = Flask(__name__, template_folder=templates_dir, static_folder=static_dir)
 app.config["SECRET_KEY"] = "681019bb3369b102e337f59b50dd5a6ca527947ac87152e362e9b0e45405bb11"
@@ -51,12 +51,16 @@ def login():
 
 @app.route("/api/reports/contracts", methods=["get", "post"])
 def getreport():
-    # from reports.contracts.contract import get_contract_report
-    # binary_report = get_contract_report()
+    from reports.contracts.contract import get_contract_report
+    binary_report = get_contract_report()
+
+
+    return send_file(binary_report, attachment_filename="r.xlsx", as_attachment=True)
+    # sdaf = 0;
     # return jsonify({"My message": "Hello ECM!!!",
     #                 "data": request.get_json(force=True)})
-    return "Hallo ECM!!!!"
+    # return "Hallo ECM!!!!"
 
 if __name__ == "__main__":
     Debug(app)
-    app.run(host="0.0.0.0", debug=True, port=8181)
+    app.run(debug=True, port=8181)

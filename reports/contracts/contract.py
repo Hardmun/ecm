@@ -7,6 +7,7 @@ from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill
 from io import BytesIO
 from copy import copy
+from common import full_path
 import re
 
 def get_xls_struct():
@@ -222,10 +223,14 @@ def df_to_excel(table, file="", template="", columns=None):
     """grouping"""
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
-    """grouping rows"""
 
-    # bt = BytesIO()
-    lw.save(file)
+    bin_report = BytesIO()
+    lw.save(bin_report)
+
+
+    # with open("123.xlsx","wb") as savebin:
+    #     savebin.write(bin_report.getvalue())
+    return bin_report
     # lw.save(bt)
 
     # with open("233.xlsx","wb") as binarysave:
@@ -246,11 +251,11 @@ def df_to_excel(table, file="", template="", columns=None):
 
 def get_contract_report():
     xls_struct = get_xls_struct()
-    df_period = getDataFromExcel("files//periods.xlsx", list(xls_struct[0]))
+    df_period = getDataFromExcel(full_path("reports/contracts/files/periods.xlsx"), list(xls_struct[0]))
     df_period = df_period.rename(columns=xls_struct[0])
-    df_rev = getDataFromExcel("files//revenew.xlsx", list(xls_struct[1]))
+    df_rev = getDataFromExcel(full_path("reports/contracts/files/revenew.xlsx"), list(xls_struct[1]))
     df_rev = df_rev.rename(columns=xls_struct[1])
-    df_exp = getDataFromExcel("files//expense.xlsx", list(xls_struct[2]))
+    df_exp = getDataFromExcel(full_path("reports/contracts/files/expense.xlsx"), list(xls_struct[2]))
     df_exp = df_exp.rename(columns=xls_struct[2])
 
     """union and merge table"""
@@ -283,9 +288,14 @@ def get_contract_report():
 
     # return df_result
     """testing"""
-    return df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
+    # return full_path("reports/contracts/files/result.xlsx")
+    return df_to_excel(df_result, full_path("reports/contracts/files/result.xlsx"),
+                       full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
+    # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
+    #     return BytesIO(binar.read())
 
-rslt = get_contract_report()
+
+# rslt = get_contract_report()
 asdf = 0
 # with open("files//result.xlsx","rb") as bn:
 #     bn.write()
