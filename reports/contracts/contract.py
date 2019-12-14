@@ -130,6 +130,7 @@ def df_to_excel(table, file="", template="", columns=None):
     resource_column = dyn_col
     grouping_clm = dyn_col
     grouping_list = []
+    column_for_rows_end = 0
     row_start = 4
     last_row = len(table.index) + row_start - 1
     grouping_row = row_start + 1
@@ -177,8 +178,8 @@ def df_to_excel(table, file="", template="", columns=None):
                 if is_rev:
                     new_row_cell.fill = fill_pattern_blue
                 column_for_rows += 1
-
         """end"""
+
         """header"""
         if header_need:
             column_for_rows_end = resource_column
@@ -222,35 +223,10 @@ def df_to_excel(table, file="", template="", columns=None):
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
     bin_report = BytesIO()
+    # lw.save(full_path("reports/contracts/files/result.xlsx"))
     lw.save(bin_report)
+
     return BytesIO(bin_report.getvalue())
-
-    # """why is this work?"""
-    # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
-    #     workIO = BytesIO(binar.read())
-    #     return BytesIO(bin_report.getvalue())
-    # return workIO
-
-    # with open("123.xlsx","wb") as savebin:
-    #     savebin.write(bin_report.getvalue())
-
-    # lw.save(bt)
-
-    # with open("233.xlsx","wb") as binarysave:
-    #     binarysave.write(bt.getvalue())
-
-    # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
-    #     lw.save(tmp.name)
-    #     sadf=0;
-    #     tmp.close()
-
-    # with open("files//result.xlsx","rb") as tmp:
-    #     asdf=0
-    # with open("1.xlsx", "wb") as ex:
-    #     for line in tmp:
-    #         ex.write(line)
-
-    # return bt
 
 def get_contract_report():
     xls_struct = get_xls_struct()
@@ -297,5 +273,4 @@ def get_contract_report():
     # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
     #     return BytesIO(binar.read())
 
-# rslt = get_contract_report()
-# asdf = 0
+rslt = get_contract_report()
