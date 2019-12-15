@@ -104,9 +104,9 @@ def user_format(frm_value):
         result_frm = frm_value
     return result_frm
 
-def df_to_excel(table, file="", template="", columns=None):
+def df_to_excel(table, template="", columns=None):
     lw = load_workbook(template)
-    lw_sheet: Worksheet = lw.active
+    lw_sheet = lw.active
     """dynamic column starts"""
     dyn_col = 17
     """header style"""
@@ -263,14 +263,6 @@ def get_contract_report():
     df_result['exp_date'] = df_result['exp_date'].apply(lambda x: "{:.10}".format(x))
 
     """creating excel file"""
-    # df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
+    return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
-    # return df_result
-    """testing"""
-    # return full_path("reports/contracts/files/result.xlsx")
-    return df_to_excel(df_result, full_path("reports/contracts/files/result.xlsx"),
-                       full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
-    # with open(full_path("reports/contracts/files/result.xlsx"), "rb") as  binar:
-    #     return BytesIO(binar.read())
-
-rslt = get_contract_report()
+# rslt = get_contract_report()
