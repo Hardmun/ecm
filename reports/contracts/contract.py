@@ -1,90 +1,75 @@
-from unittest import result
-
-from openpyxl.worksheet.worksheet import Worksheet
-from excel_app import getDataFromExcel
+from pandas import DataFrame as pd_DataFrame
 from pandas import concat as pd_concat
 from pandas import merge as pd_merge
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
 from openpyxl.styles import PatternFill
-
-from openpyxl import Workbook
 from io import BytesIO
-from tempfile import NamedTemporaryFile
-import base64
-
 from copy import copy
+from common import full_path
 import re
+from json import load as js_load
 
-def get_xls_struct():
-    dates_pivot = {
-        "Период": "date",
-        "ДоговорСсылка": "treat",
-        "Филиал": "branch",
-        "ОплатаЗаПериодПлан": "pay_plan",
-        "ОплатаЗаПериодФакт": "pay_fact",
-        "СуммаЗаПериодПлан": "revenue_plan",
-        "ВыручкаЗаПериодФакт": "revenue_fact"}
-
+def get_group_fields():
     revenue = {
-        "Филиал": "branch",
-        "ДоговорСсылка": "treat",
-        "Дох_Договор": "rev_treat",
-        "Дох_Контрагент": "treat_client",
-        "Дох_ИНН": "treat_inn",
-        "Дох_НомерДоговора": "treat_num",
-        "Дох_Дата": "treat_date",
-        "Дох_ДатаОкончания": "treat_end_date",
-        "Дох_ОбъектДоговора": "treat_object",
-        "Дох_Тип": "treat_type",
-        "СуммаДоговора": "treat_amount",
-        "СуммаНачало": "amount_done_on_begin",
-        "ОстатокНачало": "amount_on_begin",
-        "ОплатаНаНачало": "pay_on_begin",
-        "СуммаКонец": "amount_done_on_end",
-        "ОстатокКонец": "amount_on_end"}
+        "filial": "filial",
+        "dogovorssilka": "dogovorssilka",
+        "doh_dogovor": "doh_dogovor",
+        "doh_kontragent": "doh_kontragent",
+        "inn": "inn",
+        "doh_nomerdogovora": "doh_nomerdogovora",
+        "doh_data": "doh_data",
+        "doh_dataokonchaniya": "doh_dataokonchaniya",
+        "doh_obektdogovora": "doh_obektdogovora",
+        "tipdogovora": "tipdogovora",
+        "summadogovora": "summadogovora",
+        "summanachalo": "summanachalo",
+        "ostatoknachalo": "ostatoknachalo",
+        "oplatananachalo": "oplatananachalo",
+        "summakonec": "summakonec",
+        "ostatokkonec": "ostatokkonec"}
 
     expense = {
-        "Филиал": "branch",
-        "ДоговорСсылка": "treat",
-        "Дох_Договор": "rev_treat",
-        "Расх_Договор": "exp_treat",
-        "Расх_Тип": "treat_type",
-        "Расх_Контрагент": "exp_client",
-        "Расх_ИНН": "treat_inn",
-        "Расх_НомерДоговора": "exp_num",
-        "Расх_Дата": "exp_date",
-        "СуммаДоговора": "treat_amount",
-        "СуммаНачало": "amount_done_on_begin",
-        "ОстатокНачало": "amount_on_begin",
-        "СуммаКонец": "amount_done_on_end",
-        "ОстатокКонец": "amount_on_end"}
+        "filial": "filial",
+        "dogovorssilka": "dogovorssilka",
+        "doh_dogovor": "doh_dogovor",
+        "rash_dogovor": "rash_dogovor",
+        "tipdogovora": "tipdogovora",
+        "rash_kontragent": "rash_kontragent",
+        "inn": "inn",
+        "rash_nomerdogovora": "rash_nomerdogovora",
+        "rash_data": "rash_data",
+        "summadogovora": "summadogovora",
+        "summanachalo": "summanachalo",
+        "ostatoknachalo": "ostatoknachalo",
+        "summakonec": "summakonec",
+        "ostatokkonec": "ostatokkonec"}
 
     list_rev = list(revenue.values())
     for exp_var in list(expense.values()):
         if exp_var not in list_rev:
             list_rev.append(exp_var)
 
-    return [dates_pivot, revenue, expense, list_rev]
+    return list_rev
 
 def mapping_df_xls():
     dct = {
-        'A': ('branch', ''),
-        'B': ('treat_client', ''),
+        'A': ('filial', ''),
+        'B': ('doh_kontragent', ''),
         'C': (),
-        'J': ('treat_inn', ''),
-        'D': ('treat_num', ''),
-        'E': ('treat_date', ''),
-        'F': ('treat_end_date', ''),
-        'G': ('treat_object', ''),
-        'H': ('treat_type', ''),
-        'I': ('exp_client', ''),
-        'K': ('exp_num', ''),
-        'L': ('exp_date', ''),
-        'M': ('treat_amount', ''),
-        'N': ('amount_done_on_begin', ''),
-        'O': ('amount_on_begin', ''),
-        'P': ('pay_on_begin', '')
+        'J': ('inn', ''),
+        'D': ('doh_nomerdogovora', ''),
+        'E': ('doh_data', ''),
+        'F': ('doh_dataokonchaniya', ''),
+        'G': ('doh_obektdogovora', ''),
+        'H': ('tipdogovora', ''),
+        'I': ('rash_kontragent', ''),
+        'K': ('rash_nomerdogovora', ''),
+        'L': ('rash_data', ''),
+        'M': ('summadogovora', ''),
+        'N': ('summanachalo', ''),
+        'O': ('ostatoknachalo', ''),
+        'P': ('oplatananachalo', '')
     }
     return dct
 
@@ -99,20 +84,20 @@ def get_quarter(month):
     return (int(month) - 1) // 3 + 1
 
 def user_format(frm_value):
-    pattern = re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]")
+    pattern = re.compile("[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]")
     ismatch = re.match(pattern, frm_value)
     if ismatch != None:
-        date_str = frm_value[0:10].split(".");
-        result_frm = f"{get_quarter(date_str[1])} кв. {date_str[2]} г."
+        date_str = frm_value[0:10].split("-")
+        result_frm = f"{get_quarter(date_str[1])} кв. {date_str[0]} г."
     elif frm_value == "All":
         result_frm = "Всего"
     else:
         result_frm = frm_value
     return result_frm
 
-def df_to_excel(table, file="", template="", columns=None):
+def df_to_excel(table, template="", columns=None):
     lw = load_workbook(template)
-    lw_sheet: Worksheet = lw.active
+    lw_sheet = lw.active
     """dynamic column starts"""
     dyn_col = 17
     """header style"""
@@ -122,21 +107,24 @@ def df_to_excel(table, file="", template="", columns=None):
     header_need = True
     """resources """
     resources = {
-        "revenue_plan": "Выручка\nплан.",
-        "revenue_fact": "Выручка\nфакт",
-        "pay_plan": "Оплата\nплан",
-        "pay_fact": "Оплата\nфакт"
+        "summazaperiodplanitogo": "Выручка\nплан.",
+        "viruchkazaperiodfakt": "Выручка\nфакт",
+        "oplatazaperiodplan": "Оплата\nплан",
+        "oplatazaperiodfakt": "Оплата\nфакт"
     }
     """end"""
     end_colm = {
-        ('amount_done_on_end', ''): 'Выполнено на конец',
-        ('amount_on_end', ''): 'Остаток не сданных работ на конец'
+        ('summakonec', ''): 'Выполнено на конец',
+        ('ostatokkonec', ''): 'Остаток не сданных работ на конец'
     }
 
     resource_column = dyn_col
     grouping_clm = dyn_col
     grouping_list = []
+    column_for_rows_end = 0
     row_start = 4
+    last_row = len(table.index) + row_start - 1
+    grouping_row = row_start + 1
     for df_row in table.iterrows():
         """define revenue contract"""
         is_rev = df_row[0][1] == ""
@@ -166,12 +154,9 @@ def df_to_excel(table, file="", template="", columns=None):
                     new_num_header_cell.value = resource_column
                     new_num_header_cell._style = header_num_style
                     resource_column += 1
-                    # grouping_clm += 1
                 """grouping totals"""
                 num_added_clm = (resource_column - grouping_clm)
                 if num_added_clm > 1:
-                    # lw_sheet.column_dimensions.group(colnum_string(grouping_clm),
-                    #                                  colnum_string(grouping_clm + num_added_clm - 2))
                     grouping_list.append((colnum_string(grouping_clm), colnum_string(grouping_clm + num_added_clm - 2)))
                     grouping_clm = grouping_clm + num_added_clm
         """rows"""
@@ -184,8 +169,8 @@ def df_to_excel(table, file="", template="", columns=None):
                 if is_rev:
                     new_row_cell.fill = fill_pattern_blue
                 column_for_rows += 1
-
         """end"""
+
         """header"""
         if header_need:
             column_for_rows_end = resource_column
@@ -210,6 +195,12 @@ def df_to_excel(table, file="", template="", columns=None):
             column_for_rows += 1
 
         header_need = False
+        """grouping row"""
+        if is_rev:
+            lw_sheet.row_dimensions.group(grouping_row, row_start - 1)
+            grouping_row = row_start + 1
+        elif row_start == last_row:
+            lw_sheet.row_dimensions.group(grouping_row, row_start)
         row_start += 1
     """other styles"""
     """column size"""
@@ -222,86 +213,48 @@ def df_to_excel(table, file="", template="", columns=None):
     for grpcol in grouping_list:
         lw_sheet.column_dimensions.group(grpcol[0], grpcol[1])
 
-    bt = BytesIO()
-    # lw.save(file)
-    lw.save(bt)
+    bin_report = BytesIO()
+    # lw.save(full_path("reports/contracts/files/result.xlsx"))
+    lw.save(bin_report)
 
-    with open("233.xlsx","wb") as binarysave:
-        binarysave.write(bt.getvalue())
-
-
-    # with NamedTemporaryFile(mode='wb',delete=False) as tmp:
-    #     lw.save(tmp.name)
-    #     sadf=0;
-    #     tmp.close()
-
-    # with open("files//result.xlsx","rb") as tmp:
-    #     asdf=0
-        # with open("1.xlsx", "wb") as ex:
-        #     for line in tmp:
-        #         ex.write(line)
-
-
-    asdf=0
-
-
-    return bt
+    return BytesIO(bin_report.getvalue())
 
 def get_contract_report():
-    xls_struct = get_xls_struct()
-    df_period = getDataFromExcel("files//periods.xlsx", list(xls_struct[0]))
-    df_period = df_period.rename(columns=xls_struct[0])
-    df_rev = getDataFromExcel("files//revenew.xlsx", list(xls_struct[1]))
-    df_rev = df_rev.rename(columns=xls_struct[1])
-    df_exp = getDataFromExcel("files//expense.xlsx", list(xls_struct[2]))
-    df_exp = df_exp.rename(columns=xls_struct[2])
+    with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
+        data_load = js_load(js_file)
+
+    df_period = pd_DataFrame(data_load["dannieperiod"])
+    df_rev = pd_DataFrame(data_load["dohdogovori"])
+    df_exp = pd_DataFrame(data_load["rashdogovori"])
 
     """union and merge table"""
     df_result = pd_concat([df_rev, df_exp], ignore_index=True, sort=False)
-    # df_result = df_result.loc[df_result['rev_treat'] == '"Договор 00000003129 от 29.05.2015 12:00:00"']
-    df_result = pd_merge(df_result, df_period, on=["treat", "branch"], how="left")
+    # df_result = df_result.loc[df_result['doh_dogovor'] == '"Договор 00000006249 от 09.08.2019 12:00:01"']
+    df_result = pd_merge(df_result, df_period, on=["dogovorssilka", "filial"], how="left")
     df_result = df_result.fillna(
-        {"date": "01.01.2019 0:00:00", "pay_plan": 0, "pay_fact": 0, "revenue_plan": 0, "revenue_fact": 0}).fillna(
-        '')
+        {"period": "2019-01-01T00:00:00", "oplatazaperiodplan": 0, "oplatazaperiodfakt": 0, "summazaperiodplanitogo": 0,
+         "viruchkazaperiodfakt": 0}).fillna('')
     """building pivot table"""
-    df_result = df_result.pivot_table(index=xls_struct[3], columns="date",
-                                      values=["pay_plan", "pay_fact", "revenue_plan", "revenue_fact"], fill_value='',
+    df_result = df_result.pivot_table(index=get_group_fields(), columns="period",
+                                      values=["oplatazaperiodplan", "oplatazaperiodfakt", "summazaperiodplanitogo",
+                                              "viruchkazaperiodfakt"], fill_value='',
                                       margins=True,
-                                      aggfunc=sum).replace(0, '')
+                                      aggfunc=sum)
     """removing the last row with totals"""
     df_result = df_result[:-1]
     """to swipe columns"""
     # result = result.swaplevel(0, 1, axis=1).sort_index(axis=1)
     """reseting and building a new hierarchy indexes"""
     df_result = df_result.reset_index()
-    df_result = df_result.set_index(['rev_treat', 'exp_treat']).sort_index()
+    df_result = df_result.set_index(['doh_dogovor', 'rash_dogovor']).sort_index()
 
     """format values(need to rebuild later)"""
-    df_result['treat_date'] = df_result['treat_date'].apply(lambda x: "{:.10}".format(x))
-    df_result['treat_end_date'] = df_result['treat_end_date'].apply(lambda x: "{:.10}".format(x))
-    df_result['exp_date'] = df_result['exp_date'].apply(lambda x: "{:.10}".format(x))
-
+    df_result['doh_data'] = df_result['doh_data'].apply(lambda x: "{:.10}".format(x))
+    df_result['doh_dataokonchaniya'] = df_result['doh_dataokonchaniya'].apply(lambda x: "{:.10}".format(x))
+    df_result['rash_data'] = df_result['rash_data'].apply(lambda x: "{:.10}".format(x))
+    """replacing 0 with empty string for excel"""
+    df_result = df_result.replace(0, '')
     """creating excel file"""
-    # df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
+    return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
-    # return df_result
-    """testing"""
-    return df_to_excel(df_result, "files//result.xlsx", "files//contract_sketch.xlsx", mapping_df_xls())
-
-rslt = get_contract_report()
-asdf=0
-# with open("files//result.xlsx","rb") as bn:
-#     bn.write()
-
-# df_to_excel(result, "files//result.xlsx", "files//contract_sketch.xlsx")
-
-# datestr = "23.08.2015 12:00:01"
-# pat = re.compile("[0-9]")
-# ismatch = re.match(re.compile("[0-9][0-9].[0-9][0-9].[0-9][0-9][0-9][0-9]"), datestr)
-
-# df_to_excel(result,file="files//result.xlsx", template="files//contract_sketch.xlsx")
-
-#
-# app = Flask(__name__)
-# if __name__ == "__main__":
-#     app.run()
+# rslt = get_contract_report()
