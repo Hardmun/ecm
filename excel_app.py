@@ -16,23 +16,4 @@ def getDataFromExcel(filename, cols=None):
 
     return sheet_df
 
-def df_to_excel(table, file="", template="", columns=None):
-    lw = load_workbook(template)
-    lw_sheet = lw.active
 
-    # for _ in range(10):
-    cell = lw_sheet["M2"]
-    new_cell = lw_sheet["N2"]
-
-    # if cell.has_style:
-        # new_cell._style = copy(cell._style)
-    # new_cell.font = copy(cell.font)
-    # new_cell.border = copy(cell.border)
-    # new_cell.fill = copy(cell.fill)
-    # new_cell.number_format = copy(cell.number_format)
-    # new_cell.protection = copy(cell.protection)
-    # new_cell.alignment = copy(cell.alignment)
-
-    lw.save(file)
-
-# df_to_excel(123,file="reports//contracts//files//result.xlsx", template="reports//contracts//files//contract_sketch.xlsx")

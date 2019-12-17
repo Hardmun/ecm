@@ -54,7 +54,7 @@ def login():
 auth = HTTPBasicAuth()
 """must be a database"""
 users_websrv = {
-    "admin": generate_password_hash("123")
+    "admin": generate_password_hash("1234")
 }
 
 @auth.verify_password
@@ -63,7 +63,7 @@ def verify_password(user, password):
         return check_password_hash(users_websrv.get(user), password)
 
 @app.route("/api/reports/contracts", methods=["get", "post"])
-@auth.login_required
+# @auth.login_required
 def getreport():
     from reports.contracts.contract import get_contract_report
     binary_report = get_contract_report()
@@ -71,4 +71,4 @@ def getreport():
 
 if __name__ == "__main__":
     Debug(app)
-    app.run(debug=True, port=8181)
+    app.run(host="0.0.0.0", debug=True, port=8181)
