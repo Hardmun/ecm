@@ -219,9 +219,9 @@ def df_to_excel(table, template="", columns=None):
 
     return BytesIO(bin_report.getvalue())
 
-def get_contract_report():
-    with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
-        data_load = js_load(js_file)
+def get_contract_report(data_load):
+    # with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
+    #     data_load = js_load(js_file)
 
     df_period = pd_DataFrame(data_load["dannieperiod"])
     df_rev = pd_DataFrame(data_load["dohdogovori"])

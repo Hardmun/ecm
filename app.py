@@ -66,9 +66,12 @@ def verify_password(user, password):
 # @auth.login_required
 def getreport():
     from reports.contracts.contract import get_contract_report
-    binary_report = get_contract_report()
+    if request.is_json:
+        binary_report = get_contract_report(request.get_json())
+    else:
+        binary_report = b"Error!!!"
     return send_file(binary_report, attachment_filename="*.xlsx")
 
 if __name__ == "__main__":
     Debug(app)
-    app.run(host="0.0.0.0", debug=True, port=8181)
+    app.run(host="0.0.0.0", debug=False, port=8181)
