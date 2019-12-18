@@ -24,8 +24,9 @@ class Service(win32serviceutil.ServiceFramework):
         self.process.start()
         self.process.run()
 
-    # def main(self):
-    #     app.run(host="0.0.0.0", debug=False, port=8181)
+    def main(self):
+        pass
+        # app.run(host="0.0.0.0", debug=False, port=8181)
 
 if __name__ == '__main__':
     win32serviceutil.HandleCommandLine(Service)
