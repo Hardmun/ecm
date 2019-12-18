@@ -72,6 +72,6 @@ def getreport():
         binary_report = b"Error!!!"
     return send_file(binary_report, attachment_filename="*.xlsx")
 
-# if __name__ == "__main__":
-#     Debug(app)
-#     app.run(host="0.0.0.0", debug=False, port=8181)
+if __name__ == "__main__":
+    Debug(app)
+    app.run(host="0.0.0.0", debug=False, port=8181)

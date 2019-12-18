@@ -7,9 +7,9 @@ from multiprocessing import Process
 # from app import app
 
 class Service(win32serviceutil.ServiceFramework):
-    _svc_name_ = "ecm"
-    _svc_display_name_ = "ecm api service"
-    _svc_description_ = "External api for 1c program"
+    _svc_name_ = "ecmapiwin"
+    _svc_display_name_ = "ecm api service for 1c"
+    _svc_description_ = "External api for 1c"
 
     def __init__(self, *args):
         super().__init__(*args)
