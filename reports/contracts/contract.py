@@ -257,4 +257,4 @@ def get_contract_report(data_load):
     """creating excel file"""
     return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
-# rslt = get_contract_report()
+rslt = get_contract_report()
