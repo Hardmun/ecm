@@ -254,6 +254,8 @@ def get_contract_report(data_load):
     df_result['rash_data'] = df_result['rash_data'].apply(lambda x: "{:.10}".format(x))
     """replacing 0 with empty string for excel"""
     df_result = df_result.replace(0, '')
+    """sorting"""
+    df_result = df_result.sort_values(by=['filial'])
     """creating excel file"""
     return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
