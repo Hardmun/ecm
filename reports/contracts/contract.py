@@ -1,3 +1,4 @@
+from numpy.distutils.system_info import openblas_clapack_info
 from pandas import DataFrame as pd_DataFrame
 from pandas import concat as pd_concat
 from pandas import merge as pd_merge
@@ -220,8 +221,12 @@ def df_to_excel(table, template="", columns=None):
     return BytesIO(bin_report.getvalue())
 
 def get_contract_report(data_load):
-    # with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
-    #     data_load = js_load(js_file)
+    """for file debug"""
+    # from json import dumps as json_dumps
+    # with open(full_path("reports/contracts/files/full_1.json"), "w", encoding='utf-8') as js_file:
+    #     js_file.write(json_dumps(data_load))
+    with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
+        data_load = js_load(js_file)
 
     df_period = pd_DataFrame(data_load["dannieperiod"])
     df_rev = pd_DataFrame(data_load["dohdogovori"])
@@ -255,8 +260,8 @@ def get_contract_report(data_load):
     """replacing 0 with empty string for excel"""
     df_result = df_result.replace(0, '')
     """sorting by branch"""
-    df_result = df_result.sort_values(by=['filial'])
+    # df_result = df_result.sort_values(by=['filial'])
     """creating excel file"""
     return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
-# rslt = get_contract_report(None)
+rslt = get_contract_report(None)
