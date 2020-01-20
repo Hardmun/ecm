@@ -215,13 +215,13 @@ def df_to_excel(table, template="", columns=None):
 
     bin_report = BytesIO()
     lw.save(full_path("reports/contracts/files/result.xlsx"))
-    # lw.save(bin_report)
+    lw.save(bin_report)
 
     return BytesIO(bin_report.getvalue())
 
 def get_contract_report(data_load):
-    with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
-        data_load = js_load(js_file)
+    # with open(full_path("reports/contracts/files/full.json"), "r", encoding='utf-8') as js_file:
+    #     data_load = js_load(js_file)
 
     df_period = pd_DataFrame(data_load["dannieperiod"])
     df_rev = pd_DataFrame(data_load["dohdogovori"])
@@ -259,4 +259,4 @@ def get_contract_report(data_load):
     """creating excel file"""
     return df_to_excel(df_result, full_path("reports/contracts/files/contract_sketch.xlsx"), mapping_df_xls())
 
-rslt = get_contract_report(None)
+# rslt = get_contract_report(None)
