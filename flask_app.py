@@ -46,8 +46,7 @@ def login():
         if "admin" in log_form.email.data:
             flash("You have been logged in!", "success")
             return redirect(url_for('home_page'))
-        else:
-            flash("Login unseccessful. Please check username and password!", "danger m-auto w-25")
+        else:flash("Login unseccessful. Please check username and password!", "danger m-auto w-25")
     return render_template("login.html", title="Log in", form=log_form)
 
 # rest api functions
@@ -56,11 +55,21 @@ auth = HTTPBasicAuth()
 users_websrv = {
     "admin": generate_password_hash("1234")
 }
-
 @auth.verify_password
 def verify_password(user, password):
     if user in users_websrv:
         return check_password_hash(users_websrv.get(user), password)
+
+def kill_flask():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('The Web-server has been stopped!')
+    func()
+
+@app.route("/kill")
+def kill():
+    kill_flask()
+    return "The Web-server has been stopped!"
 
 @app.route("/api/reports/contracts", methods=["get", "post"])
 # @auth.login_required

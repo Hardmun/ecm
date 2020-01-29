@@ -17,8 +17,10 @@ class Service(win32serviceutil.ServiceFramework):
         self.pid_1 = None
 
     def SvcStop(self):
+        import requests
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+        # self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+        requests.get(url="http://localhost:8181/kill")
 
     def SvcDoRun(self):
         with ProcessPoolExecutor(1) as executor:
