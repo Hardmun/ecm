@@ -15,18 +15,18 @@ class Service(win32serviceutil.ServiceFramework):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def SvcStop(self):
-        import requests
-        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        # self.ReportServiceStatus(win32service.SERVICE_STOPPED)
-        requests.get(url="http://localhost:8181/kill")
+def SvcStop(self):
+    import requests
+    self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+    # self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+    requests.get(url="http://localhost:8181/kill")
 
-    def SvcDoRun(self):
-        with ProcessPoolExecutor(1) as executor:
-            executor.submit(self.main)
+def SvcDoRun(self):
+    with ProcessPoolExecutor(1) as executor:
+        executor.submit(self.main)
 
-    def main(self):
-        app.run(host="0.0.0.0", debug=False, port=8181)
+def main(self):
+    app.run(host="0.0.0.0", debug=False, port=8181)
 
 if __name__ == '__main__':
     win32serviceutil.HandleCommandLine(Service)
