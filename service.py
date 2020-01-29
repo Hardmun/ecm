@@ -14,7 +14,6 @@ class Service(win32serviceutil.ServiceFramework):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.pid_1 = None
 
     def SvcStop(self):
         import requests
