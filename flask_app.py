@@ -35,6 +35,21 @@ def register():
         return redirect(url_for('home_page'))
     return render_template("register.html", title="Sign up", form=reg_form)
 
+def shutdown_flask():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Web server has been stopped!')
+    func()
+
+@app.route("/st", methods=["get", "post"])
+def st():
+    shutdown_flask()
+    return "shuted down!"
+
+@app.route("/st1", methods=["get", "post"])
+def st1():
+    url_for("st")
+
 @app.route("/login", methods=["get", "post"])
 def login():
     from regform import LoginForm

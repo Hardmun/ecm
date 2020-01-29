@@ -5,6 +5,14 @@ import servicemanager
 from concurrent.futures import ProcessPoolExecutor
 
 from flask_app import app
+
+# from flask_app import shutdown_flask
+# from flask import request
+# from flask_app import st1
+# from flask_app import st
+# from flask import url_for
+# import requests
+
 import os
 
 class Service(win32serviceutil.ServiceFramework):
@@ -17,11 +25,18 @@ class Service(win32serviceutil.ServiceFramework):
         self.pid_1 = None
 
     def SvcStop(self):
+        import requests
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+        requests.get(url="http://localhost:8181/st")
+
+        # self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        # self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+        # url_for("st")
+
+
 
     def SvcDoRun(self):
-        with ProcessPoolExecutor(1) as executor:
+        with ProcessPoolExecutor() as executor:
             executor.submit(self.main)
 
     def main(self):
