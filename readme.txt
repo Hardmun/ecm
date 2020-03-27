@@ -1,15 +1,4 @@
-@main
-To add additional files need to compile like this:
-pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" app.py
+Using Python and rest services developed a pivot report for contracts. It allows getting actual information
+about payment and debt in payment in real-time.
 
-To install windows service
-
-1) Error
-Error starting service: The service did not respond to the start or control request in a timely fashion.
-Solution:
-This specific problem was solved by copying this file - pywintypes36.dll
-From -> Python36\Lib\site-packages\pywin32_system32
-To -> Python36\Lib\site-packages\win32
-
-2) install serivce using the pyinstaller
-pyinstaller -F --hidden-import=win32timezone WindowsService.py
+a special json format of files required on input.
